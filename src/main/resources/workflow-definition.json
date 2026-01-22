@@ -1,0 +1,181 @@
+{
+  "workflowId": "job-recruitment-workflow-india",
+  "workflowName": "Job Application Process - India",
+  "version": "1.0",
+  "description": "Multi-step job application workflow for Indian candidates",
+  "steps": [
+    {
+      "stepId": "personal-info",
+      "stepName": "Personal Information",
+      "stepOrder": 1,
+      "description": "Basic personal details",
+      "fields": [
+        {
+          "fieldId": "firstName",
+          "fieldName": "First Name",
+          "fieldType": "text",
+          "required": true,
+          "validation": {
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z\\s]+$"
+          },
+          "placeholder": "Enter your first name"
+        },
+        {
+          "fieldId": "lastName",
+          "fieldName": "Last Name",
+          "fieldType": "text",
+          "required": true,
+          "validation": {
+            "minLength": 2,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z\\s]+$"
+          }
+        },
+        {
+          "fieldId": "email",
+          "fieldName": "Email Address",
+          "fieldType": "text",
+          "required": true,
+          "validation": {
+            "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+          }
+        },
+        {
+          "fieldId": "mobileNumber",
+          "fieldName": "Mobile Number",
+          "fieldType": "text",
+          "required": true,
+          "validation": {
+            "pattern": "^[6-9]\\d{9}$"
+          },
+          "placeholder": "10-digit mobile number"
+        },
+        {
+          "fieldId": "dateOfBirth",
+          "fieldName": "Date of Birth",
+          "fieldType": "date",
+          "required": true,
+          "validation": {
+            "maxDate": "2006-01-01",
+            "minDate": "1960-01-01"
+          }
+        },
+        {
+          "fieldId": "gender",
+          "fieldName": "Gender",
+          "fieldType": "radio",
+          "required": true,
+          "options": [
+            {"value": "male", "label": "Male"},
+            {"value": "female", "label": "Female"},
+            {"value": "transgender", "label": "Transgender"},
+            {"value": "prefer-not-to-say", "label": "Prefer not to say"}
+          ]
+        }
+      ]
+    },
+    {
+      "stepId": "job-preferences",
+      "stepName": "Job Preferences",
+      "stepOrder": 2,
+      "description": "Your job preferences and availability",
+      "fields": [
+        {
+          "fieldId": "position",
+          "fieldName": "Position Applied For",
+          "fieldType": "dropdown",
+          "required": true,
+          "options": [
+            {"value": "software-engineer", "label": "Software Engineer"},
+            {"value": "senior-software-engineer", "label": "Senior Software Engineer"},
+            {"value": "tech-lead", "label": "Tech Lead"},
+            {"value": "product-manager", "label": "Product Manager"}
+          ]
+        },
+        {
+          "fieldId": "expectedSalaryCTC",
+          "fieldName": "Expected CTC (Annual in Lakhs)",
+          "fieldType": "number",
+          "required": true,
+          "validation": {
+            "min": 2,
+            "max": 200
+          },
+          "placeholder": "Enter amount in Lakhs (e.g., 8.5 for 8.5 LPA)"
+        },
+        {
+          "fieldId": "noticePeriod",
+          "fieldName": "Notice Period",
+          "fieldType": "dropdown",
+          "required": true,
+          "options": [
+            {"value": "immediate", "label": "Immediate"},
+            {"value": "15-days", "label": "15 Days"},
+            {"value": "1-month", "label": "1 Month"},
+            {"value": "2-months", "label": "2 Months"}
+          ]
+        }
+      ]
+    },
+    {
+      "stepId": "experience-education",
+      "stepName": "Experience & Education",
+      "stepOrder": 3,
+      "description": "Your professional and educational background",
+      "fields": [
+        {
+          "fieldId": "totalExperience",
+          "fieldName": "Total Years of Experience",
+          "fieldType": "number",
+          "required": true,
+          "validation": {
+            "min": 0,
+            "max": 40
+          }
+        },
+        {
+          "fieldId": "highestEducation",
+          "fieldName": "Highest Education Level",
+          "fieldType": "dropdown",
+          "required": true,
+          "options": [
+            {"value": "btech-be", "label": "B.Tech/B.E"},
+            {"value": "bca", "label": "BCA"},
+            {"value": "mtech-me", "label": "M.Tech/M.E"},
+            {"value": "mca", "label": "MCA"}
+          ]
+        },
+        {
+          "fieldId": "skills",
+          "fieldName": "Technical Skills",
+          "fieldType": "checkbox",
+          "required": true,
+          "options": [
+            {"value": "java", "label": "Java"},
+            {"value": "python", "label": "Python"},
+            {"value": "javascript", "label": "JavaScript"},
+            {"value": "spring-boot", "label": "Spring Boot"}
+          ]
+        }
+      ]
+    }
+  ],
+  "validationRules": {
+    "crossFieldValidation": [
+      {
+        "rule": "salary_experience_check",
+        "condition": "if totalExperience < 2 and expectedSalaryCTC > 10",
+        "message": "Expected CTC seems high for the experience level"
+      }
+    ]
+  },
+  "workflowSettings": {
+    "allowBackNavigation": true,
+    "saveProgressEnabled": true,
+    "sessionTimeout": 45,
+    "submitEndpoint": "/api/job-applications",
+    "validationEndpoint": "/api/validate-step"
+  }
+}

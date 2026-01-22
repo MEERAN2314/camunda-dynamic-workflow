@@ -1,0 +1,17 @@
+com/dynamicworkflow/model/WorkflowDefinition$WorkflowSettings.class
+com/dynamicworkflow/service/ValidationService$ValidationException.class
+com/dynamicworkflow/config/CamundaConfig.class
+com/dynamicworkflow/model/WorkflowStep.class
+com/dynamicworkflow/model/WorkflowDefinition$ValidationRules.class
+com/dynamicworkflow/model/FormField$FieldOption.class
+com/dynamicworkflow/delegate/StoreApplicationDelegate.class
+com/dynamicworkflow/model/WorkflowDefinition.class
+com/dynamicworkflow/model/FormField.class
+com/dynamicworkflow/service/JobApplicationService.class
+com/dynamicworkflow/delegate/ValidationDelegate.class
+com/dynamicworkflow/dto/ApplicationResponse.class
+com/dynamicworkflow/service/WorkflowDefinitionService.class
+com/dynamicworkflow/config/CamundaRestConfig.class
+com/dynamicworkflow/service/ValidationService.class
+com/dynamicworkflow/controller/JobApplicationController.class
+com/dynamicworkflow/JobRecruitmentWorkflowApplication.class

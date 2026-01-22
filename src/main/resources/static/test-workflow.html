@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Workflow</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Job Application Portal - Test</h1>
+            <p>Minimal Workflow System</p>
+        </header>
+        
+        <div id="workflow-container">
+            <!-- Current Step Display -->
+            <div id="current-step" class="step-container">
+                <div class="loading">Loading workflow...</div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="navigation">
+                <button id="prev-btn" class="btn btn-secondary" disabled>Previous</button>
+                <button id="debug-btn" class="btn" style="background: #ff9800; color: white;" onclick="console.log('Debug stepData:', window.workflowManager ? window.workflowManager.stepData : 'Not loaded')">Debug</button>
+                <button id="next-btn" class="btn btn-primary">Next</button>
+                <button id="submit-btn" class="btn btn-success" style="display: none;">Submit Application</button>
+            </div>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div id="message-container" class="message-container"></div>
+    </div>
+    
+    <script src="workflow-minimal.js"></script>
+</body>
+</html>

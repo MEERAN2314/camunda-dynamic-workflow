@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Workflow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin: 15px 0; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .radio-group { margin: 10px 0; }
+        .radio-option { margin: 8px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+        .radio-option:hover { background: #f5f5f5; }
+        .radio-option.selected { background: #e8f5e8; border-color: #4CAF50; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #4CAF50; color: white; }
+        .error { color: red; margin-top: 5px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Simple Workflow Test</h1>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label class="form-label">First Name *</label>
+            <input type="text" name="firstName" class="form-input" required>
+            <div class="error" id="firstName-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" name="email" class="form-input" required>
+            <div class="error" id="email-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Gender *</label>
+            <div class="radio-group" data-field-id="gender">
+                <div class="radio-option">
+                    <input type="radio" id="gender-male" name="gender" value="male">
+                    <label for="gender-male">Male</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="gender-female" name="gender" value="female">
+                    <label for="gender-female">Female</label>
+                </div>
+            </div>
+            <div class="error" id="gender-error"></div>
+        </div>
+        
+        <button type="button" class="btn btn-primary" onclick="validateForm()">Validate Form</button>
+        <button type="button" class="btn" onclick="showFormData()" style="background: #ff9800; color: white;">Show Data</button>
+    </form>
+    
+    <div id="debug" class="debug"></div>
+    
+    <script>
+        let formData = {};
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Simple test form loaded');
+            
+            // Add event listeners to all inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', handleInputChange);
+                input.addEventListener('input', handleInputChange);
+            });
+            
+            // Add click listeners to radio options
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'INPUT') {
+                        const input = option.querySelector('input');
+                        if (input.type === 'radio') {
+                            input.checked = true;
+                            input.dispatchEvent(new Event('change'));
+                        }
+                    }
+                });
+            });
+        });
+        
+        function handleInputChange(e) {
+            const name = e.target.name;
+            const value = e.target.value;
+            const type = e.target.type;
+            
+            console.log('Input changed:', name, '=', value, 'type:', type);
+            
+            formData[name] = value;
+            
+            // Update radio button styling
+            if (type === 'radio') {
+                const radioGroup = document.querySelector(`[data-field-id="${name}"]`);
+                if (radioGroup) {
+                    radioGroup.querySelectorAll('.radio-option').forEach(option => {
+                        const input = option.querySelector('input');
+                        option.classList.toggle('selected', input.checked);
+                    });
+                }
+            }
+            
+            // Clear error
+            clearError(name);
+            
+            // Update debug display
+            showFormData();
+        }
+        
+        function validateForm() {
+            let isValid = true;
+            
+            // Clear all errors
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            
+            // Check required fields
+            const requiredFields = ['firstName', 'email', 'gender'];
+            
+            requiredFields.forEach(fieldName => {
+                const value = formData[fieldName];
+                if (!value || value.trim() === '') {
+                    showError(fieldName, fieldName + ' is required');
+                    isValid = false;
+                }
+            });
+            
+            if (isValid) {
+                alert('Form is valid! All required fields are filled.');
+            } else {
+                alert('Please fill all required fields.');
+            }
+            
+            return isValid;
+        }
+        
+        function showError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+        
+        function clearError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+        }
+        
+        function showFormData() {
+            document.getElementById('debug').innerHTML = 
+                '<strong>Current Form Data:</strong><br>' + 
+                '<pre>' + JSON.stringify(formData, null, 2) + '</pre>';
+        }
+    </script>
+</body>
+</html>

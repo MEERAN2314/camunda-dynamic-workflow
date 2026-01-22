@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Radio Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .radio-group { margin: 20px 0; }
+        .radio-option { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .radio-option.selected { background: #e8f5e8; border-color: #4CAF50; }
+        .error { color: red; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Radio Button Test</h1>
+    
+    <div class="form-group">
+        <label>Gender *</label>
+        <div class="radio-group" data-field-id="gender">
+            <div class="radio-option">
+                <input type="radio" id="gender-male" name="gender" value="male" />
+                <label for="gender-male">Male</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="gender-female" name="gender" value="female" />
+                <label for="gender-female">Female</label>
+            </div>
+        </div>
+        <span class="error-message" id="gender-error"></span>
+    </div>
+    
+    <button onclick="testValidation()">Test Validation</button>
+    <button onclick="showData()">Show Data</button>
+    
+    <div id="debug" class="debug"></div>
+    
+    <script>
+        let stepData = {};
+        
+        // Add event listeners
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                console.log('Radio changed:', e.target.name, '=', e.target.value);
+                stepData[e.target.name] = e.target.value;
+                
+                // Update visual selection
+                const radioGroup = document.querySelector(`[data-field-id="${e.target.name}"]`);
+                radioGroup.querySelectorAll('.radio-option').forEach(option => {
+                    const input = option.querySelector('input');
+                    option.classList.toggle('selected', input.checked);
+                });
+                
+                // Clear error
+                document.getElementById('gender-error').textContent = '';
+                
+                showData();
+            });
+        });
+        
+        // Add click listeners for styling
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    const input = option.querySelector('input');
+                    input.checked = true;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+        
+        function testValidation() {
+            const value = stepData['gender'];
+            const errorElement = document.getElementById('gender-error');
+            
+            if (!value) {
+                errorElement.textContent = 'Gender is required';
+                errorElement.style.color = 'red';
+            } else {
+                errorElement.textContent = 'Valid!';
+                errorElement.style.color = 'green';
+            }
+        }
+        
+        function showData() {
+            document.getElementById('debug').innerHTML = 
+                '<strong>Current Data:</strong><br>' + 
+                JSON.stringify(stepData, null, 2);
+        }
+    </script>
+</body>
+</html>

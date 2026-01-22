@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application Workflow</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Job Application Portal</h1>
+            <p>Dynamic Workflow System</p>
+        </header>
+        
+        <div id="workflow-container">
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="step-indicators" class="step-indicators"></div>
+            </div>
+            
+            <!-- Current Step Display -->
+            <div id="current-step" class="step-container">
+                <div class="loading">Loading workflow...</div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="navigation">
+                <button id="prev-btn" class="btn btn-secondary" disabled>Previous</button>
+                <button id="debug-btn" class="btn" style="background: #ff9800; color: white;" onclick="window.workflowManager && window.workflowManager.debugCurrentState()">Debug</button>
+                <button id="next-btn" class="btn btn-primary">Next</button>
+                <button id="submit-btn" class="btn btn-success" style="display: none;">Submit Application</button>
+            </div>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div id="message-container" class="message-container"></div>
+    </div>
+    
+    <!-- Use the working minimal workflow script -->
+    <script src="workflow-minimal.js"></script>
+</body>
+</html>

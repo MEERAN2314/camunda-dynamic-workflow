@@ -1,0 +1,67 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: job-recruitment-workflow
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:h2:mem:camunda-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+# Camunda Configuration
+camunda:
+  bpm:
+    admin-user:
+      id: admin
+      password: admin
+      firstName: Admin
+      lastName: User
+    filter:
+      create: All tasks
+    webapp:
+      index-redirect-enabled: false
+    database:
+      schema-update: true
+    job-execution:
+      enabled: true
+    metrics:
+      enabled: false
+    history-level: full
+    authorization:
+      enabled: false
+    generic-properties:
+      properties:
+        initialize-telemetry: false
+
+# Application Configuration
+workflow:
+  json-path: classpath:workflow-definition.json
+  
+# Logging
+logging:
+  level:
+    com.dynamicworkflow: DEBUG
+    org.camunda: INFO
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
