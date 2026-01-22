@@ -7,6 +7,7 @@
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/service/JobApplicationService.java
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/JobRecruitmentWorkflowApplication.java
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/model/WorkflowDefinition.java
+/home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/config/WebConfig.java
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/delegate/ValidationDelegate.java
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/model/WorkflowStep.java
 /home/meeran/camunda-codes/camunda-dynamic-workflow/src/main/java/com/dynamicworkflow/dto/ApplicationResponse.java

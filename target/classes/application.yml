@@ -7,6 +7,15 @@ spring:
   application:
     name: job-recruitment-workflow
   
+  # Static Resources Configuration
+  web:
+    resources:
+      static-locations: classpath:/static/
+      cache:
+        period: 0
+  mvc:
+    static-path-pattern: /**
+  
   # Database Configuration
   datasource:
     url: jdbc:h2:mem:camunda-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

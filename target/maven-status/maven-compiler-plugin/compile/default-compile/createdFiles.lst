@@ -1,6 +1,7 @@
 com/dynamicworkflow/model/WorkflowDefinition$WorkflowSettings.class
 com/dynamicworkflow/service/ValidationService$ValidationException.class
 com/dynamicworkflow/config/CamundaConfig.class
+com/dynamicworkflow/config/WebConfig.class
 com/dynamicworkflow/model/WorkflowStep.class
 com/dynamicworkflow/model/WorkflowDefinition$ValidationRules.class
 com/dynamicworkflow/model/FormField$FieldOption.class
