@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - Job Applications</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hr-dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .application-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .applicant-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .application-id {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .application-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #34495e;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+        }
+        
+        .camunda-link {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .camunda-link:hover {
+            background: #2980b9;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-accepted {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-rejected {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .refresh-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn:hover {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="hr-dashboard">
+        <header>
+            <h1>HR Dashboard - Job Applications</h1>
+            <p>Review and manage job applications</p>
+            <button class="refresh-btn" onclick="loadApplications()">Refresh Applications</button>
+        </header>
+        
+        <div class="dashboard-info">
+            <p><strong>Instructions:</strong></p>
+            <ul>
+                <li>Applications with status "PENDING_HR_REVIEW" need your attention</li>
+                <li>Click "Review in Camunda Tasklist" to make accept/reject decisions</li>
+                <li>Use Camunda credentials: <strong>admin / admin</strong></li>
+            </ul>
+        </div>
+        
+        <div id="applications-container">
+            <div class="loading">Loading applications...</div>
+        </div>
+        
+        <div class="camunda-links" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3>Camunda Links</h3>
+            <a href="/camunda/app/tasklist/default/" target="_blank" class="camunda-link">Open Camunda Tasklist</a>
+            <a href="/camunda/app/cockpit/default/" target="_blank" class="camunda-link">Open Camunda Cockpit</a>
+        </div>
+    </div>
+
+    <script>
+        async function loadApplications() {
+            try {
+                const response = await fetch('/api/job-applications/all');
+                const data = await response.json();
+                
+                displayApplications(data.applications || {});
+            } catch (error) {
+                console.error('Failed to load applications:', error);
+                document.getElementById('applications-container').innerHTML = 
+                    '<div class="error">Failed to load applications. Please try again.</div>';
+            }
+        }
+        
+        function displayApplications(applications) {
+            const container = document.getElementById('applications-container');
+            
+            if (Object.keys(applications).length === 0) {
+                container.innerHTML = '<div class="message">No applications found.</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            Object.entries(applications).forEach(([appId, appData]) => {
+                const status = appData.applicationStatus || 'UNKNOWN';
+                const statusClass = getStatusClass(status);
+                
+                html += `
+                    <div class="application-card">
+                        <div class="application-header">
+                            <div>
+                                <div class="applicant-name">${appData.firstName || 'N/A'} ${appData.lastName || ''}</div>
+                                <div class="application-id">ID: ${appId}</div>
+                            </div>
+                            <div class="status-badge ${statusClass}">${status}</div>
+                        </div>
+                        
+                        <div class="application-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">${appData.email || 'N/A'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Mobile</div>
+                                <div class="detail-value">${appData.mobileNumber || 'N/A'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Position</div>
+                                <div class="detail-value">${formatPosition(appData.position)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Expected CTC</div>
+                                <div class="detail-value">₹${appData.expectedSalaryCTC || 'N/A'} LPA</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Experience</div>
+                                <div class="detail-value">${formatExperience(appData.totalExperience)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Education</div>
+                                <div class="detail-value">${formatEducation(appData.highestEducation)}</div>
+                            </div>
+                        </div>
+                        
+                        ${status === 'PENDING_HR_REVIEW' ? `
+                            <a href="/camunda/app/tasklist/default/" target="_blank" class="camunda-link">
+                                Review in Camunda Tasklist
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function getStatusClass(status) {
+            switch(status) {
+                case 'PENDING_HR_REVIEW': return 'status-pending';
+                case 'ACCEPTED': return 'status-accepted';
+                case 'REJECTED': return 'status-rejected';
+                default: return 'status-pending';
+            }
+        }
+        
+        function formatPosition(position) {
+            if (!position) return 'N/A';
+            const positions = {
+                'software-engineer': 'Software Engineer',
+                'senior-software-engineer': 'Senior Software Engineer',
+                'tech-lead': 'Tech Lead',
+                'product-manager': 'Product Manager'
+            };
+            return positions[position] || position;
+        }
+        
+        function formatExperience(experience) {
+            if (experience === undefined || experience === null) return 'N/A';
+            const years = parseInt(experience);
+            if (years === 0) return 'Fresher';
+            if (years === 1) return '1 Year';
+            return `${years} Years`;
+        }
+        
+        function formatEducation(education) {
+            if (!education) return 'N/A';
+            const educations = {
+                'btech-be': 'B.Tech/B.E',
+                'bca': 'BCA',
+                'mtech-me': 'M.Tech/M.E',
+                'mca': 'MCA'
+            };
+            return educations[education] || education;
+        }
+        
+        // Load applications on page load
+        document.addEventListener('DOMContentLoaded', loadApplications);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadApplications, 30000);
+    </script>
+</body>
+</html>

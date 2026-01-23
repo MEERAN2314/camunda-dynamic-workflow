@@ -127,6 +127,46 @@ public class JobApplicationController {
     }
     
     /**
+     * GET /api/job-applications/{applicationId}/hr-summary
+     * Get formatted applicant summary for HR review
+     */
+    @GetMapping("/{applicationId}/hr-summary")
+    public ResponseEntity<Map<String, Object>> getHRSummary(@PathVariable String applicationId) {
+        try {
+            ApplicationResponse application = jobApplicationService.getApplication(applicationId);
+            
+            if (application.getData() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Map<String, Object> hrSummary = new HashMap<>();
+            Map<String, Object> appData = application.getData();
+            
+            // Format data for HR display
+            hrSummary.put("applicationId", applicationId);
+            hrSummary.put("applicantName", appData.get("firstName") + " " + appData.get("lastName"));
+            hrSummary.put("email", appData.get("email"));
+            hrSummary.put("mobile", appData.get("mobileNumber"));
+            hrSummary.put("position", appData.get("position"));
+            hrSummary.put("expectedCTC", appData.get("expectedSalaryCTC"));
+            hrSummary.put("experience", appData.get("totalExperience"));
+            hrSummary.put("education", appData.get("highestEducation"));
+            hrSummary.put("skills", appData.get("skills"));
+            hrSummary.put("noticePeriod", appData.get("noticePeriod"));
+            hrSummary.put("applicationStatus", application.getStatus());
+            hrSummary.put("submissionDate", appData.get("submissionTimestamp"));
+            
+            return ResponseEntity.ok(hrSummary);
+            
+        } catch (Exception e) {
+            logger.error("Failed to get HR summary for application: {}", applicationId, e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
      * POST /api/job-applications/validate-step
      * Validate step data without submitting
      */

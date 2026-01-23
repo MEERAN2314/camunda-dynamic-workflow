@@ -90,7 +90,14 @@ http://localhost:8082
   - `applicationId`: The application ID
 - **Response**: Application data with current status
 
-### 7. Validate Step Data
+### 7. Get HR Summary
+**GET** `/api/job-applications/{applicationId}/hr-summary`
+- **Description**: Get formatted applicant summary for HR review
+- **Path Parameters**: 
+  - `applicationId`: The application ID
+- **Response**: Formatted summary with all applicant details
+
+### 8. Validate Step Data
 **POST** `/api/job-applications/validate-step`
 - **Description**: Validate step data without submitting
 - **Request Body**:
@@ -140,6 +147,11 @@ http://localhost:8082
 - **URL**: `http://localhost:8082/`
 - **Description**: Complete workflow UI for job applications
 
+## HR Dashboard
+- **URL**: `http://localhost:8082/hr-dashboard.html`
+- **Description**: HR interface to view and manage applications
+- **Features**: View all applications, direct links to Camunda Tasklist for decision making
+
 ## Testing Workflow with Postman
 
 ### Complete Flow Test:
@@ -179,7 +191,7 @@ http://localhost:8082
    }
    ```
 
-4. **Submit Experience & Education**:
+4. **Submit Experience & Education** (Final Step):
    ```
    POST http://localhost:8082/api/job-applications/{applicationId}/step
    Content-Type: application/json
@@ -191,6 +203,14 @@ http://localhost:8082
      "skills": ["java", "spring-boot", "javascript", "react"]
    }
    ```
+   
+   After this step, the application status becomes "PENDING_HR_REVIEW" and the BPMN process creates an HR task.
+
+5. **HR Review Process**:
+   - HR can view applications at: `http://localhost:8082/hr-dashboard.html`
+   - HR reviews applications in Camunda Tasklist: `http://localhost:8082/camunda/app/tasklist/default/`
+   - HR makes Accept/Reject decisions with comments
+   - Process automatically handles acceptance or rejection workflows
 
 ## Error Responses
 

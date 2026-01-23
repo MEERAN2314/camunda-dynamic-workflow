@@ -8,7 +8,9 @@ com/dynamicworkflow/model/FormField$FieldOption.class
 com/dynamicworkflow/delegate/StoreApplicationDelegate.class
 com/dynamicworkflow/model/WorkflowDefinition.class
 com/dynamicworkflow/model/FormField.class
+com/dynamicworkflow/delegate/CollectApplicantDataDelegate.class
 com/dynamicworkflow/service/JobApplicationService.class
+com/dynamicworkflow/delegate/SendRejectionDelegate.class
 com/dynamicworkflow/delegate/ValidationDelegate.class
 com/dynamicworkflow/dto/ApplicationResponse.class
 com/dynamicworkflow/service/WorkflowDefinitionService.class

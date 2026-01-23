@@ -486,12 +486,12 @@ class WorkflowManager {
                 throw new Error(result.message || 'Failed to submit application');
             }
 
-            this.showMessage('Application submitted successfully! Thank you for applying.', 'success');
+            this.showMessage('Application submitted successfully for HR review! Thank you for applying.', 'success');
             
             // Disable all form elements
             document.getElementById('step-form').style.pointerEvents = 'none';
             document.getElementById('submit-btn').disabled = true;
-            document.getElementById('submit-btn').textContent = 'Application Submitted';
+            document.getElementById('submit-btn').textContent = 'Application Submitted for HR Review';
 
         } catch (error) {
             console.error('Failed to submit application:', error);

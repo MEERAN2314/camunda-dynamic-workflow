@@ -18,7 +18,9 @@ mvn spring-boot:run
 
 2. **Access the applications**:
 - **Frontend**: http://localhost:8082/
+- **HR Dashboard**: http://localhost:8082/hr-dashboard.html
 - **Camunda Cockpit**: http://localhost:8082/camunda/app/cockpit/default/ (admin/admin)
+- **Camunda Tasklist**: http://localhost:8082/camunda/app/tasklist/default/ (admin/admin)
 - **API Health**: http://localhost:8082/api/job-applications/health
 
 ## 📋 API Testing
@@ -41,11 +43,13 @@ See `API_ENDPOINTS.md` for complete API documentation and testing examples.
 ## 🎯 Features
 
 - **Dynamic Workflow**: JSON-driven multi-step forms
-- **Camunda Integration**: Full BPMN workflow lifecycle
+- **Camunda Integration**: Full BPMN workflow lifecycle with HR review process
+- **HR Dashboard**: Dedicated interface for HR to review applications
 - **Indian Job Market**: Tailored for Indian recruitment process
 - **Responsive UI**: Works on desktop and mobile
 - **Real-time Validation**: Client and server-side validation
 - **Process Monitoring**: Camunda Cockpit integration
+- **Decision Workflow**: Accept/Reject workflow with automated notifications
 
 ## 🏗️ Architecture
 

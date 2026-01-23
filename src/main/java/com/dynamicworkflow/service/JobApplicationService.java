@@ -139,12 +139,12 @@ public class JobApplicationService {
             String status = "IN_PROGRESS";
             
             if (workflowDefinitionService.isLastStep(currentStepId)) {
-                status = "COMPLETED";
+                status = "PENDING_HR_REVIEW";
                 nextStepId = null;
-                applicationData.put("completionTimestamp", LocalDateTime.now().toString());
-                applicationData.put("applicationStatus", "COMPLETED");
-                applicationStatusStore.put(applicationId, "COMPLETED");
-                logger.info("Application {} completed", applicationId);
+                applicationData.put("submissionTimestamp", LocalDateTime.now().toString());
+                applicationData.put("applicationStatus", "PENDING_HR_REVIEW");
+                applicationStatusStore.put(applicationId, "PENDING_HR_REVIEW");
+                logger.info("Application {} submitted for HR review", applicationId);
             } else {
                 Optional<WorkflowStep> nextStep = workflowDefinitionService.getNextStep(currentStepId);
                 if (nextStep.isPresent()) {
