@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -244,11 +245,77 @@ public class JobApplicationService {
     
     // Add method to get all applications for debugging
     public Map<String, Object> getAllApplications() {
+        // Sync with Camunda process instances to get latest status
+        syncApplicationStatusWithCamunda();
+        
         Map<String, Object> result = new HashMap<>();
         result.put("totalApplications", applicationDataStore.size());
         result.put("applications", applicationDataStore);
         result.put("statuses", applicationStatusStore);
         return result;
+    }
+    
+    // Method to sync application status with Camunda process instances
+    private void syncApplicationStatusWithCamunda() {
+        try {
+            // Get all process instances for our workflow
+            List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery()
+                .processDefinitionKey("job-recruitment-workflow-india")
+                .list();
+            
+            for (ProcessInstance processInstance : processInstances) {
+                String applicationId = processInstance.getBusinessKey();
+                if (applicationId != null && applicationDataStore.containsKey(applicationId)) {
+                    
+                    // Check if process is ended
+                    if (processInstance.isEnded()) {
+                        // Get process variables to determine final status
+                        Map<String, Object> processVariables = runtimeService.getVariables(processInstance.getId());
+                        String finalStatus = (String) processVariables.get("applicationStatus");
+                        
+                        if (finalStatus != null) {
+                            // Update our in-memory store
+                            applicationStatusStore.put(applicationId, finalStatus);
+                            Map<String, Object> appData = applicationDataStore.get(applicationId);
+                            appData.put("applicationStatus", finalStatus);
+                            appData.put("lastUpdatedTimestamp", LocalDateTime.now().toString());
+                            
+                            // Add HR decision details if available
+                            if (processVariables.containsKey("hrDecision")) {
+                                appData.put("hrDecision", processVariables.get("hrDecision"));
+                                appData.put("hrComments", processVariables.get("hrComments"));
+                                appData.put("interviewRequired", processVariables.get("interviewRequired"));
+                            }
+                            
+                            logger.info("Updated application {} status to: {}", applicationId, finalStatus);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to sync application status with Camunda: {}", e.getMessage());
+        }
+    }
+    
+    // Method to manually update application status (can be called by Camunda delegates)
+    public void updateApplicationStatus(String applicationId, String status, Map<String, Object> additionalData) {
+        try {
+            if (applicationDataStore.containsKey(applicationId)) {
+                applicationStatusStore.put(applicationId, status);
+                Map<String, Object> appData = applicationDataStore.get(applicationId);
+                appData.put("applicationStatus", status);
+                appData.put("lastUpdatedTimestamp", LocalDateTime.now().toString());
+                
+                // Add any additional data
+                if (additionalData != null) {
+                    appData.putAll(additionalData);
+                }
+                
+                logger.info("Manually updated application {} status to: {}", applicationId, status);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to update application status for {}: {}", applicationId, e.getMessage());
+        }
     }
     
     private String generateApplicationId() {

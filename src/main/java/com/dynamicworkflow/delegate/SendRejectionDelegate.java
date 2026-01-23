@@ -1,17 +1,24 @@
 package com.dynamicworkflow.delegate;
 
+import com.dynamicworkflow.service.JobApplicationService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class SendRejectionDelegate implements JavaDelegate {
     
     private static final Logger logger = LoggerFactory.getLogger(SendRejectionDelegate.class);
+    
+    @Autowired
+    private JobApplicationService jobApplicationService;
     
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -36,6 +43,15 @@ public class SendRejectionDelegate implements JavaDelegate {
         execution.setVariable("rejectionTimestamp", LocalDateTime.now().toString());
         execution.setVariable("rejectionMessage", rejectionMessage);
         execution.setVariable("notificationSent", true);
+        
+        // Update our in-memory application store
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("hrComments", hrComments);
+        additionalData.put("rejectionTimestamp", LocalDateTime.now().toString());
+        additionalData.put("rejectionMessage", rejectionMessage);
+        additionalData.put("notificationSent", true);
+        
+        jobApplicationService.updateApplicationStatus(applicationId, "REJECTED", additionalData);
         
         // Simulate email sending (in real implementation, use email service)
         logger.info("Rejection notification sent to: {}", applicantEmail);
