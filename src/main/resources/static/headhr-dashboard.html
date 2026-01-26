@@ -560,19 +560,27 @@
         function updateStats(applications) {
             const allApps = Object.values(applications);
             
-            // Filter for applications that need Head HR review (both TL and PM approved)
-            const tlpmApprovedApps = allApps.filter(app => {
+            // Filter for applications that need Head HR review OR have been reviewed by Head HR
+            const relevantApps = allApps.filter(app => {
                 const status = app.applicationStatus || '';
-                // Show applications that have been approved by both TL and PM
+                const tlDecision = app.tlDecision;
+                const pmDecision = app.pmDecision;
+                const headHRDecision = app.headHRDecision;
+                
+                // Show if: status indicates Head HR review OR both TL and PM have accepted OR Head HR has made a decision
                 return status === 'PENDING_HEAD_HR_REVIEW' ||
                        status === 'TLPM_APPROVED' ||
-                       (app.tlDecision === 'accept' && app.pmDecision === 'accept');
+                       (tlDecision === 'accept' && pmDecision === 'accept') ||
+                       headHRDecision !== undefined;
             });
+            
+            // Count pending (not yet reviewed by Head HR)
+            const pendingApps = relevantApps.filter(app => !app.headHRDecision);
 
             applicationStats = {
                 total: allApps.length,
-                pending: tlpmApprovedApps.length,
-                tlpmApproved: tlpmApprovedApps.length
+                pending: pendingApps.length,
+                tlpmApproved: relevantApps.length
             };
 
             renderStats();
@@ -589,12 +597,12 @@
                 <div class="stat-card">
                     <i class="fas fa-clock stat-icon" style="color: var(--warning-color);"></i>
                     <div class="stat-number">${applicationStats.pending}</div>
-                    <div class="stat-label">Pending Final Review</div>
+                    <div class="stat-label">Pending Your Review</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-check-circle stat-icon" style="color: var(--success-color);"></i>
                     <div class="stat-number">${applicationStats.tlpmApproved}</div>
-                    <div class="stat-label">Approved by TL & PM</div>
+                    <div class="stat-label">Total Reviewed</div>
                 </div>
             `;
         }
@@ -604,18 +612,20 @@
             
             console.log('All applications:', applications);
             
-            // Filter for applications that need Head HR review
+            // Filter for applications that need Head HR review OR have been reviewed by Head HR
             const filteredApps = Object.entries(applications).filter(([id, app]) => {
                 const status = app.applicationStatus || '';
                 const tlDecision = app.tlDecision;
                 const pmDecision = app.pmDecision;
+                const headHRDecision = app.headHRDecision;
                 
-                console.log(`App ${id}: status=${status}, tlDecision=${tlDecision}, pmDecision=${pmDecision}`);
+                console.log(`App ${id}: status=${status}, tlDecision=${tlDecision}, pmDecision=${pmDecision}, headHRDecision=${headHRDecision}`);
                 
-                // Show if status indicates Head HR review OR both TL and PM have accepted
+                // Show if: status indicates Head HR review OR both TL and PM have accepted OR Head HR has made a decision
                 return status === 'PENDING_HEAD_HR_REVIEW' ||
                        status === 'TLPM_APPROVED' ||
-                       (tlDecision === 'accept' && pmDecision === 'accept');
+                       (tlDecision === 'accept' && pmDecision === 'accept') ||
+                       headHRDecision !== undefined; // Show if Head HR has made a decision
             });
             
             console.log('Filtered apps for Head HR:', filteredApps.length);
@@ -637,6 +647,36 @@
             let html = '';
             
             filteredApps.forEach(([appId, appData]) => {
+                const headHRDecision = appData.headHRDecision;
+                const isReviewed = headHRDecision !== undefined;
+                
+                // Determine status badge
+                let statusBadge = '';
+                if (isReviewed) {
+                    if (headHRDecision === 'accept') {
+                        statusBadge = `
+                            <div class="status-badge" style="background: var(--success-color); color: white;">
+                                <i class="fas fa-check-circle"></i>
+                                Approved by You
+                            </div>
+                        `;
+                    } else {
+                        statusBadge = `
+                            <div class="status-badge" style="background: var(--danger-color); color: white;">
+                                <i class="fas fa-times-circle"></i>
+                                Rejected by You
+                            </div>
+                        `;
+                    }
+                } else {
+                    statusBadge = `
+                        <div class="status-badge status-pending">
+                            <i class="fas fa-clock"></i>
+                            Pending Final Review
+                        </div>
+                    `;
+                }
+                
                 html += `
                     <div class="application-card">
                         <div class="application-header">
@@ -647,10 +687,7 @@
                                 </div>
                                 <div class="application-id">ID: ${appId}</div>
                             </div>
-                            <div class="status-badge status-pending">
-                                <i class="fas fa-clock"></i>
-                                Pending Final Review
-                            </div>
+                            ${statusBadge}
                         </div>
                         
                         <div class="application-details">
@@ -753,11 +790,29 @@
                         </div>
                         ` : ''}
                         
+                        ${isReviewed && appData.headHRComments ? `
+                        <div class="hr-comments" style="background: #f0f8ff; border-left-color: #4CAF50;">
+                            <h4 style="color: #4CAF50;">
+                                <i class="fas fa-comment-dots"></i>
+                                Your Final Decision Comments
+                            </h4>
+                            <p>${appData.headHRComments}</p>
+                            ${appData.offerCTC ? `<p style="margin-top: 0.5rem;"><strong>Offer CTC:</strong> ₹${appData.offerCTC} LPA</p>` : ''}
+                        </div>
+                        ` : ''}
+                        
                         <div class="action-buttons">
-                            <a href="/camunda/app/tasklist/default/" target="_blank" class="camunda-link">
-                                <i class="fas fa-gavel"></i>
-                                Make Final Decision in Camunda
-                            </a>
+                            ${!isReviewed ? `
+                                <a href="/camunda/app/tasklist/default/" target="_blank" class="camunda-link">
+                                    <i class="fas fa-gavel"></i>
+                                    Make Final Decision in Camunda
+                                </a>
+                            ` : `
+                                <button class="btn btn-secondary" disabled style="opacity: 0.6;">
+                                    <i class="fas fa-check"></i>
+                                    Decision Made
+                                </button>
+                            `}
                             <a href="/api/job-applications/${appId}/hr-summary" target="_blank" class="btn btn-secondary">
                                 <i class="fas fa-file-alt"></i>
                                 View Full Details
